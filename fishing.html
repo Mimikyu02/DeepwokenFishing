@@ -167,9 +167,15 @@
   <div class="fish-info" id="fishContainer"></div>
 
   <div class="swordfish-section">
+    <div id="swordfishChance" style="font-size: 1.2rem; color: #facc15; margin-bottom: 5px;">
+      Golden Swordfish Chance: 0%
+    </div>
     <div class="swordfish-count" id="count-Golden Swordfish">0</div>
     <button class="swordfish-button" onclick="swordfishIncrement()">+1 Golden Swordfish</button>
     <button class="swordfish-button" onclick="swordfishDecrement()" style="margin-left: 10px; background-color: #f87171; box-shadow: 0 0 10px #f87171;">−1 Golden Swordfish</button>
+    <div style="font-size: 0.8rem; color: #f87171; margin-top: 5px;">
+      (Not a pity system)
+    </div>
   </div>
 
   <div class="total-section">
@@ -214,13 +220,19 @@
       const incButton = document.createElement("button");
       incButton.className = "count-button";
       incButton.textContent = `+1 ${fish.split(" ")[1]}`;
-      incButton.onclick = () => incrementFish(fish);
+      incButton.onclick = () => {
+        incrementFish(fish);
+        updateSwordfishChance();
+      };
 
       const decButton = document.createElement("button");
       decButton.className = "count-button";
       decButton.textContent = `-1`;
       decButton.style.marginLeft = "8px";
-      decButton.onclick = () => decrementFish(fish);
+      decButton.onclick = () => {
+        decrementFish(fish);
+        updateSwordfishChance();
+      };
 
       card.appendChild(name);
       card.appendChild(counter);
@@ -261,6 +273,7 @@
       total++;
       localStorage.setItem("totalFish", total);
       document.getElementById("totalFish").textContent = total;
+      updateSwordfishChance();
     }
 
     function decrementTotal() {
@@ -269,6 +282,7 @@
         total--;
         localStorage.setItem("totalFish", total);
         document.getElementById("totalFish").textContent = total;
+        updateSwordfishChance();
       }
     }
 
@@ -296,16 +310,25 @@
 
     function swordfishIncrement() {
       incrementFish("Golden Swordfish");
+      updateSwordfishChance();
     }
 
     function swordfishDecrement() {
       decrementFish("Golden Swordfish");
+      updateSwordfishChance();
+    }
+
+    function updateSwordfishChance() {
+      const total = parseInt(localStorage.getItem("totalFish")) || 0;
+      const chance = total > 0 ? ((total / 450) * 100).toFixed(2) : 0; // Linear chance calculation
+      document.getElementById("swordfishChance").textContent = `Golden Swordfish Chance: ${chance}%`;
     }
 
     // Initialize
     fishTypes.forEach(fish => createFishCard(fish));
     setupSwordfish();
     document.getElementById("totalFish").textContent = parseInt(localStorage.getItem("totalFish")) || 0;
+    updateSwordfishChance();
   </script>
 </body>
 </html>
