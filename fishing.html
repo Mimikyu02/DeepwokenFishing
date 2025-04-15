@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Deepwoken Fish Tracker</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #0f172a;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      margin: 0;
+      height: 100vh;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin: 10px 0;
+      text-align: center;
+    }
+
+    .controls {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .fish-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    .fish-card {
+      background-color: rgba(30, 41, 59, 0.85);
+      border-radius: 12px;
+      padding: 10px;
+      width: 200px;
+      text-align: center;
+    }
+
+    .fish-name {
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+
+    .fish-count {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .count-button {
+      padding: 6px 12px;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 6px;
+      background-color: #38bdf8;
+      color: #0f172a;
+      cursor: pointer;
+    }
+
+    .count-button:hover {
+      background-color: #0ea5e9;
+    }
+
+    .swordfish-section, .total-section {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .swordfish-count {
+      font-size: 2rem;
+      color: gold;
+      margin-bottom: 5px;
+    }
+
+    .swordfish-button {
+      padding: 12px 24px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      background-color: gold;
+      color: #0f172a;
+      box-shadow: 0 0 10px gold;
+      cursor: pointer;
+    }
+
+    .swordfish-button:hover {
+      transform: scale(1.03);
+    }
+
+    .total-count {
+      font-size: 2rem;
+      margin-bottom: 5px;
+      color: #7dd3fc;
+    }
+
+    .total-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .total-button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      background-color: #38bdf8;
+      color: #0f172a;
+      cursor: pointer;
+    }
+
+    .total-button:hover {
+      background-color: #0ea5e9;
+    }
+
+    select, input[type="file"] {
+      padding: 6px;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.9rem;
+    }
+
+    @media (max-height: 700px) {
+      .fish-card { padding: 6px; width: 160px; }
+      .fish-count { font-size: 1.5rem; }
+      .swordfish-count, .total-count { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <h1>🐟 Deepwoken Fish Tracker</h1>
+
+  <div class="controls">
+    <div>
+      <label for="themeSelect">🎨 Background Color:</label>
+      <select id="themeSelect" onchange="changeTheme()">
+        <option value="#0f172a">Default (Dark Blue)</option>
+        <option value="#1a1a1a">Dark Gray</option>
+        <option value="#ffffff">White</option>
+        <option value="#111827">Midnight</option>
+        <option value="#4b5563">Slate</option>
+      </select>
+    </div>
+    <div>
+      <label for="bgUpload">🖼️ Upload Background:</label>
+      <input type="file" id="bgUpload" accept="image/*" onchange="setCustomBackground(event)" />
+    </div>
+  </div>
+
+  <div class="fish-info" id="fishContainer"></div>
+
+  <div class="swordfish-section">
+    <div class="swordfish-count" id="count-Golden Swordfish">0</div>
+    <button class="swordfish-button" onclick="swordfishIncrement()">+1 Golden Swordfish</button>
+    <button class="swordfish-button" onclick="swordfishDecrement()" style="margin-left: 10px; background-color: #f87171; box-shadow: 0 0 10px #f87171;">−1 Golden Swordfish</button>
+  </div>
+
+  <div class="total-section">
+    <div class="total-count" id="totalFish">0</div>
+    <div class="total-buttons">
+      <button class="total-button" onclick="incrementTotal()">+1 Any Fish</button>
+      <button class="total-button" onclick="decrementTotal()">-1 Any Fish</button>
+    </div>
+  </div>
+
+  <script>
+    const fishTypes = [
+      "Golden Sea Bass",
+      "Golden Red Snapper",
+      "Golden Tuna",
+      "Golden Squid",
+      "Golden Pufferfish",
+      "Golden Seaweed Bundle",
+      "Golden Urchin",
+      "Golden Swordfish"
+    ];
+
+    const fishContainer = document.getElementById("fishContainer");
+
+    function createFishCard(fish) {
+      if (fish === "Golden Swordfish") return;
+
+      const count = parseInt(localStorage.getItem(fish)) || 0;
+
+      const card = document.createElement("div");
+      card.className = "fish-card";
+
+      const name = document.createElement("div");
+      name.className = "fish-name";
+      name.textContent = fish;
+
+      const counter = document.createElement("div");
+      counter.className = "fish-count";
+      counter.id = `count-${fish}`;
+      counter.textContent = count;
+
+      const incButton = document.createElement("button");
+      incButton.className = "count-button";
+      incButton.textContent = `+1 ${fish.split(" ")[1]}`;
+      incButton.onclick = () => incrementFish(fish);
+
+      const decButton = document.createElement("button");
+      decButton.className = "count-button";
+      decButton.textContent = `-1`;
+      decButton.style.marginLeft = "8px";
+      decButton.onclick = () => decrementFish(fish);
+
+      card.appendChild(name);
+      card.appendChild(counter);
+      card.appendChild(incButton);
+      card.appendChild(decButton);
+
+      fishContainer.appendChild(card);
+    }
+
+    function incrementFish(fish) {
+      let current = parseInt(localStorage.getItem(fish)) || 0;
+      current++;
+      localStorage.setItem(fish, current);
+      updateCounter(fish, current);
+      incrementTotal();
+    }
+
+    function decrementFish(fish) {
+      let current = parseInt(localStorage.getItem(fish)) || 0;
+      if (current > 0) {
+        current--;
+        localStorage.setItem(fish, current);
+        updateCounter(fish, current);
+        decrementTotal();
+      }
+    }
+
+    function updateCounter(fish, value) {
+      const counter = document.getElementById(`count-${fish}`);
+      if (counter) counter.textContent = value;
+      else if (fish === "Golden Swordfish") {
+        document.getElementById("count-Golden Swordfish").textContent = value;
+      }
+    }
+
+    function incrementTotal() {
+      let total = parseInt(localStorage.getItem("totalFish")) || 0;
+      total++;
+      localStorage.setItem("totalFish", total);
+      document.getElementById("totalFish").textContent = total;
+    }
+
+    function decrementTotal() {
+      let total = parseInt(localStorage.getItem("totalFish")) || 0;
+      if (total > 0) {
+        total--;
+        localStorage.setItem("totalFish", total);
+        document.getElementById("totalFish").textContent = total;
+      }
+    }
+
+    function changeTheme() {
+      const selectedColor = document.getElementById("themeSelect").value;
+      document.body.style.backgroundImage = '';
+      document.body.style.backgroundColor = selectedColor;
+    }
+
+    function setCustomBackground(event) {
+      const file = event.target.files[0];
+      if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.body.style.backgroundImage = `url('${e.target.result}')`;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function setupSwordfish() {
+      const swordCount = parseInt(localStorage.getItem("Golden Swordfish")) || 0;
+      document.getElementById("count-Golden Swordfish").textContent = swordCount;
+    }
+
+    function swordfishIncrement() {
+      incrementFish("Golden Swordfish");
+    }
+
+    function swordfishDecrement() {
+      decrementFish("Golden Swordfish");
+    }
+
+    // Initialize
+    fishTypes.forEach(fish => createFishCard(fish));
+    setupSwordfish();
+    document.getElementById("totalFish").textContent = parseInt(localStorage.getItem("totalFish")) || 0;
+  </script>
+</body>
+</html>
