@@ -18,6 +18,7 @@
       padding: 10px;
       margin: 0;
       height: 100vh;
+      overflow: auto;
       box-sizing: border-box;
     }
 
@@ -76,7 +77,7 @@
       background-color: #0ea5e9;
     }
 
-    .swordfish-section, .total-section {
+    .swordfish-section, .total-section, .chum-section {
       text-align: center;
       margin-top: 10px;
     }
@@ -103,19 +104,19 @@
       transform: scale(1.03);
     }
 
-    .total-count {
+    .total-count, .chum-count {
       font-size: 2rem;
       margin-bottom: 5px;
       color: #7dd3fc;
     }
 
-    .total-buttons {
+    .total-buttons, .chum-buttons {
       display: flex;
       gap: 10px;
       justify-content: center;
     }
 
-    .total-button {
+    .total-button, .chum-button {
       padding: 10px 20px;
       font-size: 1rem;
       font-weight: bold;
@@ -126,7 +127,7 @@
       cursor: pointer;
     }
 
-    .total-button:hover {
+    .total-button:hover, .chum-button:hover {
       background-color: #0ea5e9;
     }
 
@@ -140,7 +141,7 @@
     @media (max-height: 700px) {
       .fish-card { padding: 6px; width: 160px; }
       .fish-count { font-size: 1.5rem; }
-      .swordfish-count, .total-count { font-size: 1.5rem; }
+      .swordfish-count, .total-count, .chum-count { font-size: 1.5rem; }
     }
   </style>
 </head>
@@ -183,6 +184,14 @@
     <div class="total-buttons">
       <button class="total-button" onclick="incrementTotal()">+1 Any Fish</button>
       <button class="total-button" onclick="decrementTotal()">-1 Any Fish</button>
+    </div>
+  </div>
+
+  <div class="chum-section">
+    <div class="chum-count" id="chumUsed">Chum Used: 0</div>
+    <div class="chum-buttons">
+      <button class="chum-button" onclick="incrementChum()">+1 Chum</button>
+      <button class="chum-button" onclick="decrementChum()">-1 Chum</button>
     </div>
   </div>
 
@@ -286,6 +295,22 @@
       }
     }
 
+    function incrementChum() {
+      let chum = parseInt(localStorage.getItem("chumUsed")) || 0;
+      chum++;
+      localStorage.setItem("chumUsed", chum);
+      document.getElementById("chumUsed").textContent = `Chum Used: ${chum}`;
+    }
+
+    function decrementChum() {
+      let chum = parseInt(localStorage.getItem("chumUsed")) || 0;
+      if (chum > 0) {
+        chum--;
+        localStorage.setItem("chumUsed", chum);
+        document.getElementById("chumUsed").textContent = `Chum Used: ${chum}`;
+      }
+    }
+
     function changeTheme() {
       const selectedColor = document.getElementById("themeSelect").value;
       document.body.style.backgroundImage = '';
@@ -320,7 +345,7 @@
 
     function updateSwordfishChance() {
       const total = parseInt(localStorage.getItem("totalFish")) || 0;
-      const chance = total > 0 ? ((total / 450) * 100).toFixed(2) : 0; // Linear chance calculation
+      const chance = total > 0 ? ((total / 450) * 100).toFixed(2) : 0;
       document.getElementById("swordfishChance").textContent = `Golden Swordfish Chance: ${chance}%`;
     }
 
@@ -328,6 +353,7 @@
     fishTypes.forEach(fish => createFishCard(fish));
     setupSwordfish();
     document.getElementById("totalFish").textContent = parseInt(localStorage.getItem("totalFish")) || 0;
+    document.getElementById("chumUsed").textContent = `Chum Used: ${parseInt(localStorage.getItem("chumUsed")) || 0}`;
     updateSwordfishChance();
   </script>
 </body>
